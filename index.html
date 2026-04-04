@@ -1,405 +1,719 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <meta name="description" content="Automata – Automated Trading Dashboard">
-  <title>Automata | Trading Dashboard</title>
-  <!-- Tailwind CSS + Inter font -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-  <!-- Lucide Icons -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="description" content="Automata — advanced automated trading system built to execute with precision, speed, and discipline." />
+  <title>Automata | Automated Trading Intelligence</title>
+  <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    /* Custom overrides for dark theme and glassmorphism */
+    /* RESET + PERFECT SCROLLING */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #050816;
+      --bg-2: #070c1f;
+      --text: #f4f7ff;
+      --muted: rgba(220, 230, 255, 0.72);
+      --cyan: #48d7ff;
+      --blue: #377dff;
+      --violet: #7e5cff;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+      --radius: 24px;
+      --max: 1180px;
+    }
+
+    html {
+      /* SMOOTH SCROLLING — native, hardware accelerated, no jank */
+      scroll-behavior: smooth;
+      background: #050816;
+      height: 100%;
+    }
+
     body {
-      font-family: 'Inter', sans-serif;
-      background: radial-gradient(ellipse at 20% 30%, #0a0f1f, #03050d);
+      height: 100%;
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      /* Lightweight gradient background — no heavy patterns or animations */
+      background: linear-gradient(145deg, #03050d 0%, #050816 55%, #060b17 100%);
+      overflow-x: hidden;
+      /* Remove any overscroll weirdness */
+      overscroll-behavior: none;
+      /* Force GPU layer for body to avoid repaint stutter */
+      transform: translateZ(0);
+      will-change: auto; /* let browser optimize */
+      display: flex;
+      flex-direction: column;
     }
-    .glass-card {
-      background: rgba(12, 18, 40, 0.7);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(72, 215, 255, 0.2);
-      border-radius: 2rem;
-    }
-    .stat-card {
-      background: rgba(0, 0, 0, 0.35);
-      border-radius: 1.5rem;
-      transition: transform 0.2s ease, border-color 0.2s;
-    }
-    .stat-card:hover {
-      border-color: rgba(72, 215, 255, 0.5);
-      transform: translateY(-2px);
-    }
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 5px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0f1425;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #48d7ff;
-      border-radius: 10px;
-    }
-    /* Smooth transitions */
-    button {
-      transition: all 0.2s ease;
-    }
-    button:active {
-      transform: scale(0.97);
-    }
-    .btn-grad {
-      background: linear-gradient(95deg, #48d7ff, #377dff);
-      box-shadow: 0 8px 20px rgba(72, 215, 255, 0.2);
-    }
-    .btn-grad:hover {
-      box-shadow: 0 12px 28px rgba(72, 215, 255, 0.4);
-      transform: translateY(-1px);
-    }
-    .btn-stop {
-      background: linear-gradient(95deg, #ff4d4d, #b91c1c);
-      box-shadow: 0 8px 20px rgba(255, 77, 77, 0.2);
-    }
-    .btn-stop:hover {
-      box-shadow: 0 12px 28px rgba(255, 77, 77, 0.4);
-    }
-    .btn-outline {
-      background: transparent;
-      border: 1px solid rgba(72, 215, 255, 0.5);
-      backdrop-filter: blur(4px);
-    }
-    .btn-outline:hover {
-      background: rgba(72, 215, 255, 0.1);
-      border-color: #48d7ff;
-    }
-    input:focus {
-      outline: none;
-      border-color: #48d7ff;
-      box-shadow: 0 0 0 2px rgba(72, 215, 255, 0.3);
-    }
-    table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-    }
-    th, td {
-      padding: 12px 8px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      text-align: left;
-    }
-    th {
-      color: #48d7ff;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-    }
-    .win {
-      color: #4ade80;
-      font-weight: 600;
-    }
-    .loss {
-      color: #f87171;
-      font-weight: 600;
-    }
-    /* Modal overlay */
-    .modal-overlay {
+
+    /* Very subtle fixed background glow — no animation, no heavy filter */
+    .ambient-glow {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(8px);
+      pointer-events: none;
+      z-index: -1;
+      background: radial-gradient(circle at 20% 20%, rgba(72, 215, 255, 0.1), transparent 45%),
+                  radial-gradient(circle at 80% 30%, rgba(55, 125, 255, 0.07), transparent 50%);
+      filter: blur(28px);
+      opacity: 0.7;
+    }
+
+    /* Custom scrollbar — thin and responsive */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(5, 8, 22, 0.6);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(72, 215, 255, 0.4);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(72, 215, 255, 0.7);
+    }
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(72, 215, 255, 0.4) rgba(5, 8, 22, 0.6);
+    }
+
+    /* Fade-up animation — lightweight, no layout shift */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    section {
+      animation: fadeUp 0.5s ease-out forwards;
+    }
+
+    .container {
+      width: min(var(--max), calc(100% - 40px));
+      margin: 0 auto;
+      /* No extra margins, ensures footer sticks to bottom */
+      flex: 1;
+    }
+
+    /* HEADER */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(180deg, rgba(5, 8, 22, 0.88), rgba(5, 8, 22, 0.5));
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      transform: translateZ(0);
+    }
+
+    .nav {
       display: flex;
       align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
+      justify-content: space-between;
+      min-height: 78px;
+      gap: 16px;
     }
-    .modal-overlay.active {
-      opacity: 1;
-      visibility: visible;
+
+    .brand {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
     }
-    .modal-content {
-      max-width: 450px;
-      width: 90%;
-      background: linear-gradient(145deg, #0a0f1f, #050816);
-      border: 1px solid rgba(72, 215, 255, 0.3);
-      border-radius: 2rem;
-      padding: 1.5rem;
+
+    .brand-logo {
+      height: 48px;
+      width: auto;
+      display: block;
+    }
+
+    .menu-icon {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.8rem;
+      cursor: pointer;
+      line-height: 1;
+      transition: opacity 0.2s;
+    }
+    .menu-icon:hover {
+      opacity: 0.8;
+    }
+
+    nav {
+      display: flex;
+      gap: 8px;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      margin-left: 22px;
+      font-size: 0.95rem;
+      transition: color 0.2s ease;
+    }
+
+    nav a:hover {
+      color: var(--text);
+    }
+
+    /* Mobile nav */
+    @media (max-width: 960px) {
+      .menu-icon {
+        display: block;
+      }
+      nav {
+        position: fixed;
+        top: 78px;
+        left: 0;
+        right: 0;
+        background: linear-gradient(180deg, rgba(5, 8, 22, 0.98), rgba(8, 12, 26, 0.98));
+        backdrop-filter: blur(20px);
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        gap: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        transform: translateY(-100%);
+        opacity: 0;
+        transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1), opacity 0.3s ease;
+        pointer-events: none;
+        z-index: 19;
+      }
+      nav.open {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+      }
+      nav a {
+        margin: 0;
+        font-size: 1.1rem;
+        padding: 8px;
+      }
+    }
+
+    /* HERO */
+    .hero {
+      padding: 88px 0 20px;
+    }
+
+    .hero-content {
+      max-width: 800px;
+      margin: 0 auto;
       text-align: center;
-      box-shadow: 0 25px 50px -12px black;
     }
-    /* Floating WhatsApp button */
-    .whatsapp-float {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: linear-gradient(135deg, #25D366, #128C7E);
-      border-radius: 50%;
-      width: 56px;
-      height: 56px;
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: rgba(232, 240, 255, 0.86);
+      font-size: 0.88rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow i {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, var(--cyan), var(--blue));
+      box-shadow: 0 0 18px rgba(72, 215, 255, 0.8);
+      display: inline-block;
+    }
+
+    h1 {
+      margin: 22px 0 18px;
+      font-size: clamp(3rem, 6vw, 5.8rem);
+      line-height: 0.96;
+      letter-spacing: -0.05em;
+      max-width: 12ch;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .lead {
+      max-width: 60ch;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.8;
+      margin: 0 auto 30px;
+    }
+
+    .actions {
       display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+      gap: 10px;
+      padding: 14px 18px;
+      border-radius: 16px;
+      text-decoration: none;
+      font-weight: 700;
+      border: 1px solid transparent;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      color: #05101e;
+      background: linear-gradient(135deg, #7ff2ff, #4d9dff);
+      box-shadow: 0 14px 40px rgba(72, 215, 255, 0.24);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 18px 48px rgba(72, 215, 255, 0.4);
+    }
+
+    .btn-secondary {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    section {
+      padding: 22px 0 70px;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 42px;
+    }
+
+    .section-title h2 {
+      margin: 0 0 12px;
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      letter-spacing: -0.04em;
+    }
+
+    .section-title p {
+      margin: 0 auto;
+      max-width: 60ch;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* GRID LAYOUTS */
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .card {
+      padding: 24px;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(12, 18, 40, 0.84), rgba(8, 12, 26, 0.8));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(72, 215, 255, 0.08), transparent 35%, rgba(126, 92, 255, 0.04));
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 20px;
+      color: var(--cyan);
+      stroke-width: 1.5;
+    }
+
+    .card h3 {
+      margin: 0 0 12px;
+      font-size: 1.2rem;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 0.95rem;
+    }
+
+    .principle {
+      padding: 20px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .principle:hover {
+      transform: translateY(-3px);
+      border-color: rgba(72, 215, 255, 0.3);
+    }
+
+    .principle-icon {
+      width: 40px;
+      height: 40px;
+      margin-bottom: 16px;
+      color: var(--cyan);
+      stroke-width: 1.5;
+    }
+
+    .principle h3 {
+      font-size: 1.3rem;
+      margin-bottom: 12px;
+    }
+
+    .principle p {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .diff-list {
+      max-width: 700px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 32px;
+      padding: 32px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .diff-list p {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .diff-list ul {
+      margin-top: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      list-style: none;
+      padding: 0;
+    }
+
+    .diff-list li {
+      background: rgba(72, 215, 255, 0.08);
+      padding: 8px 16px;
+      border-radius: 40px;
+      font-size: 0.9rem;
+      border: 1px solid rgba(72, 215, 255, 0.2);
+    }
+
+    .cta-block {
+      margin: 20px 0 72px;
+      padding: 48px 32px;
+      border-radius: 32px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: radial-gradient(circle at 15% 20%, rgba(72, 215, 255, 0.12), transparent 28%),
+                  radial-gradient(circle at 85% 30%, rgba(126, 92, 255, 0.1), transparent 22%),
+                  linear-gradient(180deg, rgba(12, 18, 40, 0.88), rgba(8, 12, 24, 0.82));
+      box-shadow: var(--shadow);
+      text-align: center;
       transition: transform 0.2s, box-shadow 0.2s;
-      z-index: 1100;
     }
-    .whatsapp-float:hover {
-      transform: scale(1.05);
-      box-shadow: 0 10px 30px rgba(37, 211, 102, 0.6);
+    .cta-block:hover {
+      transform: scale(1.01);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
     }
-    .whatsapp-float i {
-      width: 28px;
-      height: 28px;
-      color: white;
+
+    .cta-block h2 {
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      margin: 0 0 16px;
+    }
+
+    .cta-block p {
+      max-width: 60ch;
+      margin: 0 auto 28px;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    /* FOOTER - no extra blank space */
+    footer {
+      margin-top: 20px;
+      padding: 24px 0 32px;
+      color: rgba(220, 230, 255, 0.52);
+      font-size: 0.95rem;
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      background: transparent;
+    }
+
+    .disclaimer {
+      opacity: 0.6;
+      font-size: 0.8rem;
+      margin-top: 16px;
+      text-align: center;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 960px) {
+      .grid-4,
+      .grid-3 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .hero {
+        padding-top: 58px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        width: min(100% - 24px, var(--max));
+      }
+      .nav {
+        min-height: 72px;
+      }
+      .grid-4,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+      .btn {
+        width: 100%;
+      }
+      .actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+
+    /* Remove any hidden margin on images */
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    /* Ensure main content takes full height minus footer */
+    main {
+      flex: 1;
     }
   </style>
 </head>
-<body class="text-white antialiased">
+<body>
+  <!-- Very subtle static glow (no animation, no repaint cost) -->
+  <div class="ambient-glow"></div>
 
-  <!-- Early Access Modal -->
-  <div id="earlyAccessModal" class="modal-overlay">
-    <div class="modal-content">
-      <div class="flex justify-end">
-        <button id="closeModalBtn" class="text-gray-400 hover:text-white transition">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-      <i data-lucide="bot" class="w-12 h-12 text-cyan-400 mx-auto mb-3"></i>
-      <h2 class="text-2xl font-bold mb-2">Early Access</h2>
-      <p class="text-gray-300 mb-4">Automata is currently in early access. Slots are limited.</p>
-      <div class="bg-black/30 rounded-xl p-3 mb-4 text-sm">
-        <span class="text-cyan-400">📋 Waitlist:</span> Join now to secure your spot.
-      </div>
-      <a href="https://wa.me/2348146074064" target="_blank" class="btn-grad inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold mx-auto">
-        <i data-lucide="message-circle" class="w-4 h-4"></i> Contact Support
+  <header>
+    <div class="container nav">
+      <a class="brand" href="#home" aria-label="Automata home">
+        <img class="brand-logo" src="assets/images/logo.jpg" alt="Automata logo" loading="lazy" />
       </a>
-      <p class="text-xs text-gray-500 mt-4">You can close this modal and continue using the dashboard.<br>A WhatsApp button is always available at the bottom right.</p>
+      <button class="menu-icon" id="menuToggle" aria-label="Menu">☰</button>
+      <nav id="mainNav" aria-label="Primary">
+        <a href="#capabilities">Capabilities</a>
+        <a href="#how">How It Works</a>
+        <a href="#early">Early Access</a>
+      </nav>
     </div>
-  </div>
+  </header>
 
-  <!-- Persistent WhatsApp floating button -->
-  <a href="https://wa.me/2348146074064" target="_blank" class="whatsapp-float" aria-label="Contact Support">
-    <i data-lucide="message-circle"></i>
-  </a>
+  <main id="home">
+    <div class="container">
+      <section class="hero">
+        <div class="hero-content">
+          <div class="eyebrow"><i></i> Early Access • Automated Trading Intelligence</div>
+          <h1>AUTOMATA</h1>
+          <p class="lead">
+            An advanced automated trading system built to execute with precision, speed, and discipline.<br/>
+            Designed to remove emotion, optimize entries, and operate continuously in live markets.
+          </p>
+          <div class="actions">
+            <a class="btn btn-primary" href="https://wa.me/2348146074064" target="_blank">Get Early Access</a>
+            <a class="btn btn-secondary" href="#how">How It Works</a>
+          </div>
+        </div>
+      </section>
 
-  <div class="max-w-4xl mx-auto px-4 py-8 md:py-12">
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-8">
-      <div class="flex items-center gap-3">
-        <i data-lucide="bot" class="w-8 h-8 text-cyan-400"></i>
-        <h1 class="text-2xl md:text-3xl font-bold tracking-tight bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent">Automata</h1>
+      <div style="text-align:center; margin-top:-20px; margin-bottom:40px;">
+        <img src="assets/images/automata.jpg" alt="Automata AI Trading System" style="max-width:320px; border-radius:20px; opacity:0.95;" loading="lazy">
       </div>
-      <div class="text-sm text-gray-400 hidden md:block">Automated Trading Intelligence</div>
+
+      <section id="capabilities">
+        <div class="section-title">
+          <h2>System Capabilities</h2>
+          <p>Automata is engineered to identify, execute, and manage trades with consistency and control.</p>
+        </div>
+        <div class="grid-4">
+          <article class="card">
+            <i data-lucide="radar" class="card-icon"></i>
+            <h3>Signal Detection Engine</h3>
+            <p>Continuously analyzes market data to identify high-probability trading signals with minimal latency.</p>
+          </article>
+          <article class="card">
+            <i data-lucide="play" class="card-icon"></i>
+            <h3>Automated Trade Execution</h3>
+            <p>Executes trades instantly based on predefined logic — no manual intervention, no hesitation.</p>
+          </article>
+          <article class="card">
+            <i data-lucide="shield" class="card-icon"></i>
+            <h3>Risk Control System</h3>
+            <p>Manages position sizing, stop losses, and exposure to protect capital in volatile conditions.</p>
+          </article>
+          <article class="card">
+            <i data-lucide="git-branch" class="card-icon"></i>
+            <h3>Market Adaptation Logic</h3>
+            <p>Adjusts strategy parameters dynamically to align with current market regimes and volatility.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="how">
+        <div class="section-title">
+          <h2>How Automata Works</h2>
+          <p>A fully automated pipeline from signal detection to execution.</p>
+        </div>
+        <div class="grid-3">
+          <div class="card">
+            <i data-lucide="line-chart" class="card-icon"></i>
+            <h3>1. Market Analysis</h3>
+            <p>Continuously scans price action and volatility patterns to identify high-probability setups.</p>
+          </div>
+          <div class="card">
+            <i data-lucide="brain" class="card-icon"></i>
+            <h3>2. Decision Engine</h3>
+            <p>Filters signals using precision thresholds and confidence scoring.</p>
+          </div>
+          <div class="card">
+            <i data-lucide="rocket" class="card-icon"></i>
+            <h3>3. Execution</h3>
+            <p>Places trades instantly based on defined logic — no delay, no emotion.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="principles">
+        <div class="section-title">
+          <h2>Built on Infrastructure Principles</h2>
+          <p>Infrastructure is not visible to users, but everything depends on it. Our approach focuses on creating systems that are dependable, connected, and built to scale.</p>
+        </div>
+        <div class="grid-3">
+          <div class="principle">
+            <i data-lucide="layers" class="principle-icon"></i>
+            <h3>Foundation</h3>
+            <p>Every system starts with a stable base that supports all operations without failure.</p>
+          </div>
+          <div class="principle">
+            <i data-lucide="share-2" class="principle-icon"></i>
+            <h3>Interconnection</h3>
+            <p>Systems are designed to communicate seamlessly, ensuring efficient data flow and integration.</p>
+          </div>
+          <div class="principle">
+            <i data-lucide="trending-up" class="principle-icon"></i>
+            <h3>Scalability</h3>
+            <p>Infrastructure is built to handle growth, adapting to increased demand without loss of performance.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="why">
+        <div class="section-title">
+          <h2>Why Automata</h2>
+          <p>We approach infrastructure as a core system, not an afterthought. Our focus is on building environments that are structured, maintainable, and ready for real-world usage.</p>
+        </div>
+        <div class="diff-list">
+          <p>We prioritize:</p>
+          <ul>
+            <li>Clean and scalable system design</li>
+            <li>Reliable performance under load</li>
+            <li>Long-term maintainability</li>
+            <li>Clear architecture and control</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="early">
+        <div class="cta-block">
+          <h2>Get Early Access to Automata</h2>
+          <p>
+            Automata is currently in early access. Limited slots are available for initial users.<br/>
+            Join now to test and experience the system before public release.
+          </p>
+          <a class="btn btn-primary" href="https://wa.me/2348146074064" target="_blank">Join Early Access</a>
+        </div>
+      </section>
     </div>
+  </main>
 
-    <!-- API Key Card -->
-    <div class="glass-card p-5 mb-6">
-      <div class="flex flex-col md:flex-row gap-4 items-center">
-        <div class="flex-1 w-full">
-          <label class="block text-xs uppercase tracking-wider text-cyan-400 mb-1">API Key</label>
-          <input type="password" id="apiKey" class="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-2.5 text-white placeholder-gray-400 focus:border-cyan-400 transition" placeholder="Enter your API key">
-        </div>
-        <button id="connectBtn" class="btn-grad px-6 py-2.5 rounded-full font-semibold flex items-center gap-2 whitespace-nowrap">
-          <i data-lucide="plug" class="w-4 h-4"></i> Connect
-        </button>
-      </div>
+  <footer>
+    © <span id="year"></span> Automata. Automated trading intelligence.
+    <div class="disclaimer">
+      Automata is a tool for automated trading. It does not guarantee profits. Trading involves risk.
     </div>
-
-    <!-- Dashboard (hidden until connected) -->
-    <div id="dashboard" class="hidden space-y-6">
-      <!-- Stats Grid -->
-      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div class="stat-card p-4 text-center">
-          <div class="text-cyan-400 text-xs uppercase tracking-wider mb-1">Status</div>
-          <div class="text-xl font-bold flex items-center justify-center gap-2" id="status">—</div>
-        </div>
-        <div class="stat-card p-4 text-center">
-          <div class="text-cyan-400 text-xs uppercase tracking-wider mb-1">Balance</div>
-          <div class="text-xl font-bold" id="balance">—</div>
-        </div>
-        <div class="stat-card p-4 text-center">
-          <div class="text-cyan-400 text-xs uppercase tracking-wider mb-1">Trades</div>
-          <div class="text-xl font-bold" id="trades">—</div>
-        </div>
-        <div class="stat-card p-4 text-center">
-          <div class="text-cyan-400 text-xs uppercase tracking-wider mb-1">Win Rate</div>
-          <div class="text-xl font-bold" id="winRate">—</div>
-        </div>
-        <div class="stat-card p-4 text-center">
-          <div class="text-cyan-400 text-xs uppercase tracking-wider mb-1">Session P&L</div>
-          <div class="text-xl font-bold" id="pnl">—</div>
-        </div>
-      </div>
-
-      <!-- Control Buttons (Pro Bubbles) -->
-      <div class="glass-card p-5 flex flex-wrap justify-center gap-3">
-        <button id="startBtn" class="btn-grad px-6 py-3 rounded-full font-semibold flex items-center gap-2">
-          <i data-lucide="play" class="w-5 h-5"></i> Start
-        </button>
-        <button id="stopBtn" class="btn-stop px-6 py-3 rounded-full font-semibold flex items-center gap-2">
-          <i data-lucide="square" class="w-5 h-5"></i> Stop
-        </button>
-        <button id="resetBtn" class="btn-outline px-6 py-3 rounded-full font-semibold flex items-center gap-2">
-          <i data-lucide="rotate-ccw" class="w-5 h-5"></i> Reset Session
-        </button>
-      </div>
-
-      <!-- Trade Log -->
-      <div class="glass-card p-5">
-        <div class="flex items-center gap-2 mb-4">
-          <i data-lucide="list" class="w-5 h-5 text-cyan-400"></i>
-          <h3 class="text-lg font-semibold">Recent Trades (last 10)</h3>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr>
-                <th>Time</th>
-                <th>Direction</th>
-                <th>Stake</th>
-                <th>Result</th>
-                <th>P/L</th>
-                <th>Balance</th>
-              </tr>
-            </thead>
-            <tbody id="tradeTableBody">
-              <tr><td colspan="6" class="text-center text-gray-400">No trades yet</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
+  </footer>
 
   <script>
-    // ---------- Modal logic (appears once per session) ----------
-    const modal = document.getElementById('earlyAccessModal');
-    const closeModalBtn = document.getElementById('closeModalBtn');
+    // Set current year
+    document.getElementById('year').textContent = new Date().getFullYear();
 
-    if (!sessionStorage.getItem('automataModalShown')) {
-      setTimeout(() => {
-        modal.classList.add('active');
-      }, 500);
-      sessionStorage.setItem('automataModalShown', 'true');
-    }
-
-    closeModalBtn.onclick = () => {
-      modal.classList.remove('active');
-    };
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal.classList.remove('active');
-      }
-    });
-
-    // ---------- Dashboard logic (unchanged) ----------
-    const connectBtn = document.getElementById('connectBtn');
-    const apiKeyInput = document.getElementById('apiKey');
-    const dashboardDiv = document.getElementById('dashboard');
-    let ws = null;
-    let apiKey = '';
-    let statusInterval = null;
-
-    // Backend URLs – CHANGE THESE TO YOUR VPS IP/DOMAIN
-    const BACKEND_WS = 'wss://your-vps-ip/ws';
-    const BACKEND_HTTP = 'https://your-vps-ip';
-
-    function refreshIcons() {
-      if (typeof lucide !== 'undefined') lucide.createIcons();
-    }
-
-    function updateUI(data) {
-      if (!data) return;
-      document.getElementById('status').innerHTML = data.running ? '<span class="flex items-center gap-1"><span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span> ACTIVE</span>' : '<span class="flex items-center gap-1"><span class="w-2 h-2 bg-red-400 rounded-full"></span> STOPPED</span>';
-      document.getElementById('balance').innerText = `$${data.balance?.toFixed(2) ?? '0.00'}`;
-      document.getElementById('trades').innerText = data.trades ?? 0;
-      const winRate = (data.trades && data.wins) ? ((data.wins / data.trades) * 100).toFixed(1) : 0;
-      document.getElementById('winRate').innerText = `${winRate}%`;
-      document.getElementById('pnl').innerText = `$${data.session_profit?.toFixed(2) ?? '0.00'}`;
-      
-      const tbody = document.getElementById('tradeTableBody');
-      if (data.trade_log && data.trade_log.length) {
-        tbody.innerHTML = '';
-        data.trade_log.slice().reverse().forEach(t => {
-          const row = tbody.insertRow();
-          row.insertCell(0).innerText = new Date(t.time * 1000).toLocaleTimeString();
-          row.insertCell(1).innerHTML = `<span class="flex items-center gap-1">${t.direction === 'CALL' ? '📈' : '📉'} ${t.direction}</span>`;
-          row.insertCell(2).innerText = `$${t.stake.toFixed(2)}`;
-          row.insertCell(3).innerHTML = t.win ? '<span class="win">WIN</span>' : '<span class="loss">LOSS</span>';
-          row.insertCell(4).innerText = `$${t.profit.toFixed(4)}`;
-          row.insertCell(5).innerText = `$${t.balance.toFixed(2)}`;
+    // Mobile menu toggle with smooth behavior
+    const menuToggle = document.getElementById('menuToggle');
+    const mainNav = document.getElementById('mainNav');
+    if (menuToggle && mainNav) {
+      menuToggle.addEventListener('click', () => {
+        mainNav.classList.toggle('open');
+      });
+      // Close mobile menu on link click
+      mainNav.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          mainNav.classList.remove('open');
         });
-      } else {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-400">No trades yet</td></tr>';
-      }
-      refreshIcons();
+      });
     }
 
-    async function fetchStatus() {
-      if (!apiKey) return;
-      try {
-        const res = await fetch(`${BACKEND_HTTP}/status?api_key=${apiKey}`);
-        if (res.ok) {
-          const data = await res.json();
-          updateUI(data);
-        } else {
-          console.error('Status fetch failed', res.status);
-        }
-      } catch (err) {
-        console.error('Status fetch error', err);
-      }
+    // Initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
     }
 
-    async function callEndpoint(endpoint) {
-      if (!apiKey) return;
-      try {
-        await fetch(`${BACKEND_HTTP}/${endpoint}?api_key=${apiKey}`, { method: 'POST' });
-        fetchStatus();
-      } catch (err) {
-        console.error(`${endpoint} error`, err);
-      }
+    // Ensure no blank space below footer: force body to use flex and container to fill
+    // Additionally, remove any extra margin on last child
+    const container = document.querySelector('.container');
+    if (container) {
+      container.style.marginBottom = '0';
     }
-
-    function connectWebSocket() {
-      if (ws) ws.close();
-      ws = new WebSocket(`${BACKEND_WS}?api_key=${apiKey}`);
-      ws.onopen = () => {
-        console.log('WebSocket connected');
-        if (statusInterval) clearInterval(statusInterval);
-        statusInterval = setInterval(fetchStatus, 3000);
-        fetchStatus();
-      };
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          updateUI(data);
-        } catch (e) {}
-      };
-      ws.onerror = (err) => console.error('WebSocket error', err);
-      ws.onclose = () => {
-        console.log('WebSocket closed, reconnecting in 5s...');
-        setTimeout(connectWebSocket, 5000);
-      };
-    }
-
-    connectBtn.onclick = () => {
-      const key = apiKeyInput.value.trim();
-      if (!key) {
-        alert('Please enter your API key');
-        return;
-      }
-      apiKey = key;
-      dashboardDiv.classList.remove('hidden');
-      connectWebSocket();
-    };
-
-    document.getElementById('startBtn').onclick = () => callEndpoint('start');
-    document.getElementById('stopBtn').onclick = () => callEndpoint('stop');
-    document.getElementById('resetBtn').onclick = () => callEndpoint('reset');
-
-    refreshIcons();
   </script>
 </body>
 </html>
